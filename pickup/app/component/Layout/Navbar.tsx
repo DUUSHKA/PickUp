@@ -1,6 +1,7 @@
 import Container from "../Container";
+import Logo from "../navbar/Logo";
 import UserMenu from "../navbar/UserMenu";
-import Logo from "./Logo";
+
 
 export default function Navbar() {
   return (
