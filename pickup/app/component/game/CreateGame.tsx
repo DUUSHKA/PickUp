@@ -1,24 +1,21 @@
-'use client'
+'use client';
 
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-
-import { Slider } from "@/components/ui/slider"
-import { Label } from "@radix-ui/react-select";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import Input from "../Input";
 import { useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
@@ -29,87 +26,84 @@ import axios from "axios";
 import router from "next/router";
 import toast from "react-hot-toast";
 
-
-
 export default function CreateGame() {
-    const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+  const [isPasswordEnabled, setIsPasswordEnabled] = useState(false);
+  const [sliderValue, setSliderValue] = useState(0);
 
-    const [isPasswordEnabled, setIsPasswordEnabled] = useState(false);
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FieldValues>({
+    defaultValues: {
+      game: '',
+      location: '',
+      game_type: '',
+      public: 'True',
+      passsword: '',
+    },
+  });
 
-    const {
-        register,
-        handleSubmit,
-        formState: {
-            errors
-        }
-    } = useForm<FieldValues>({
-        defaultValues: {
-            game: '',
-            location: '',
-            difficult: '',
-            game_type: '',
-            public: 'True',
-            password:'',
-        }
-    })
+  const onSubmit: SubmitHandler<FieldValues> = (formData) => {
+    setIsLoading(true);
 
-    const submitGame = () => {
+    axios.post('http://localhost:5000/api/create_game', formData)
+      .then(() => {
         router.push('/');
-      };
+      })
+      .catch((_error) => {
+        toast.error('Something went wrong!');
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
 
-    const onSubmit: SubmitHandler<FieldValues> = (data) => {
-        setIsLoading(false)
-        axios.post('api/create_game', data)
-            .then(() => {
-                router.push('');
-            })
-            .catch((_error) => {
-                toast.error('Something went wrong!')
-            })
-            .finally(() => {
-                setIsLoading(false)
-            })
-    }
-    
-    return (
-        <div className="h-screen flex justify-center gap-12 items-center">
-            <Card className="w-[350px]">
-                <CardHeader>
-                    <CardTitle>Create Game</CardTitle>
-                    <CardDescription>Customize  your pickup game!</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form>
-                        <div className="grid w-full items-center gap-4">
-                            <div className="flex flex-col space-y-1.5">
-                            <Input
-                                    id="game name"
-                                    label="Game"
-                                    type="string"
-                                    disabled={isLoading}
-                                    register={register}
-                                    errors={errors}
-                                    required
-                                />
-
-                            </div>
-                            <div className="flex flex-col space-y-1.5">
-                            <Input
-                                    id="location name"
-                                    label="Location"
-                                    type="string"
-                                    disabled={isLoading}
-                                    register={register}
-                                    errors={errors}
-                                    required
-                                />
-
-                            </div>
-                            <div gap-2>
+  return (
+    <div className="h-screen flex justify-center gap-12 items-center">
+      <Card className="w-[350px]">
+        <CardHeader>
+          <CardTitle>Create Game</CardTitle>
+          <CardDescription>Customize your pickup game!</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="grid w-full items-center gap-4">
+              <div className="flex flex-col space-y-1.5">
+                <Input
+                  name="game_name"
+                  id="game_name"
+                  label="Game"
+                  type="string"
+                  disabled={isLoading}
+                  register={register}
+                  errors={errors}
+                  required
+                />
+              </div>
+              <div className="flex flex-col space-y-1.5">
+                <Input
+                  name="location"
+                  id="location"
+                  label="Location"
+                  type="string"
+                  disabled={isLoading}
+                  register={register}
+                  errors={errors}
+                  required
+                />
+              </div>
+                            {/* <div gap-2>
                                 <Heading title="" subtitle="Difficulty" /> 
                                 <br/>
-                                <Slider defaultValue={[0]} max={5} step={1} />
-                            </div>
+                                <Slider 
+                                    defaultValue={[0]} 
+                                    max={5} 
+                                    step={1}
+                                    onValueChange={(value) => {
+                                        setSliderValue(sliderValue);
+                                        console.log(sliderValue)
+                                        setValue("difficulty", sliderValue);
+                                    }} 
+                                />
+                            </div> */}
                             <div className="flex flex-col space-y-1.5">
                                 <Heading title="" subtitle="Game Type"/>
                                 <Select>
@@ -121,7 +115,7 @@ export default function CreateGame() {
                                         <SelectItem value="2">2v2</SelectItem>
                                         <SelectItem value="3">3v3</SelectItem>
                                         <SelectItem value="5">5v5</SelectItem>
-                                        <SelectItem value="other">Other</SelectItem>
+                                        <SelectItem value="0">Other</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -136,9 +130,9 @@ export default function CreateGame() {
                                 </div>
                                 {isPasswordEnabled && (
                                 <Input
-                                    id="password"
+                                    id="passsword"
                                     label="Password"
-                                    type="password"
+                                    type="passsword"
                                     disabled={isLoading}
                                     register={register}
                                     errors={errors}
@@ -148,7 +142,7 @@ export default function CreateGame() {
                                 {!isPasswordEnabled && (
                                     <div className="brightness-75">
                                     <Input
-                                        id="password"
+                                        id="passsword"
                                         label="Password"
                                         type="password"
                                         disabled={true}
@@ -158,13 +152,13 @@ export default function CreateGame() {
                                     />
                                     </div>
                                 )}
-                        </div>
-                    </form>
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                <Button label="Submit" onClick={submitGame} />
-                </CardFooter>
-            </Card>
-        </div>
-    );
-} 
+                       </div>
+            <CardFooter className="flex justify-between">
+              <Button label="Submit" />
+            </CardFooter>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

@@ -24,4 +24,4 @@ def login():
     return jsonify({"message":"Login Successful", "user_id": str(user["_id"])}),200
 
 if __name__ == "__main__":
-    app.run(debug=True  )
+    app.run(debug=True)

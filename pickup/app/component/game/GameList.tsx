@@ -1,102 +1,70 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { GiBasketballJersey } from 'react-icons/gi';
 
 type Game = {
-  id: number,
-  location: string,
-  difficult: number,
-  time: Date, 
-  is_public: boolean,
-  creator_name: string
-  // Add other fields as needed
+  id: number;
+  location: string;
+  difficult: number;
+  time: Date;
+  is_public: boolean;
+  creator_name: string;
+  password?: string; // Optional if the password might not be returned or can be null
 };
 
-function CardList() {
-  const [data, setData] = useState([]);
+const GameList: React.FC = () => {
+  const [games, setGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('api/view_games')
-      .then((response) => {
-        setData(response.data);
+    axios.get('http://localhost:5001/api/view_games')
+      .then(response => {
+        setGames(response.data);
         setIsLoading(false);
       })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
+      .catch(error => {
+        console.error('Error fetching games:', error);
         setIsLoading(false);
       });
   }, []);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <div className="card-list">
-      {data.map((item: Game) => (
-        <div className="card" key={item.id}>
-          <h2>{item.creator_name}'s game</h2>
-          <p>{item.location}</p>
-          <p>{item.difficult}</p>
-          <p>{item.is_public}</p>
-          {/* Add other card content here */}
-        </div>
-      ))}
+    <div className="game-list">
+      {isLoading ? (
+        <p>Loading games...</p>
+      ) : (
+        games.map(game => (
+
+          // <div className="game-card" key={game.id}>
+          //   <h2>{game.creator_name}'s game</h2>
+          //   <p>Location: {game.location}</p>
+          //   <p>Difficulty: {game.difficult}</p>
+          //   <p>Public: {game.is_public ? 'Yes' : 'No'}</p>
+          // </div>
+
+            <div className="h-screen flex justify-center gap-12 items-center">
+
+            <Card className="border-[#ee7b42] border-4 bg-[#efcab1] hover:brightness-105">
+              <CardHeader>
+                <CardTitle><div className="game-card"></div></CardTitle>
+              </CardHeader>
+              <div className="flex items-center justify-center">
+                <CardContent>
+                      
+                   <h2>{game.game_name}</h2>
+                   <p>Location: {game.location}</p>
+                   <p>Public: {game.is_public ? 'Yes' : 'No'}</p>
+                 
+                </CardContent>
+              </div>
+            </Card>
+            </div>
+                      
+        ))
+      )}
     </div>
   );
 }
 
-export default CardList;
-
-
-
-
-
-
-
-
-
-// import React, { useState, useEffect } from 'react';
-
-// const ViewGames = () => {
-//   const [availableGames, setAvailableGames] = useState([]);
-//   const [isLoading, setIsLoading] = useState(true);
-
-//   useEffect(() => {
-//     fetch('/view_games')
-//       .then((response) => {
-//         if (!response.ok) {
-//           throw new Error('Network response was not ok');
-//         }
-//         return response.json();
-//       })
-//       .then((data) => {
-//         setAvailableGames(data);
-//         setIsLoading(false);
-//       })
-//       .catch((error) => {
-//         console.error('Error fetching games:', error);
-//         setIsLoading(false);
-//       });
-//   }, []);
-
-//   return (
-//     <div>
-//       <h2>Available Games</h2>
-//       {isLoading ? (
-//         <p>Loading...</p>
-//       ) : (
-//         <ul>
-//           {availableGames.map((game) => (
-//             <li key={game.id}>
-//               <span>Game Name: {game.name}</span>
-//               {}
-//             </li>
-//           ))}
-//         </ul>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default ViewGames;
+export default GameList;

@@ -1,39 +1,36 @@
-from flask import Flask, request, jsonify 
-from pymango import MongoClient
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import mysql.connector
 
-app = flask (__name__)
+app = Flask(__name__)
 CORS(app)
 
-client = MongoClient("mongodb://localhost:27017/")
-db = client["PickUp"]
-games_collection = db["games"]
+db = mysql.connector.connect(
+    host="nbp-90-233.nbp.ruw.rutgers.edu",
+    user="root",
+    password="password",
+    database="pickup",
+)
 
-@app.route("/create_game", methods =["POST"])
+@app.route('/api/create_game', methods=['POST'])
 def create_game():
-    data = request.get.json()
-    location = data.get("location","")
-    #player_skills = data["player_skills"]
-    difficulty = data["difficulty"]
-    time = data["time"]
-   #duration = data["duration"]
-    is_public = data["is_public"]
-    creator_name = data["creator_name"]
+    data = request.json
+    cursor = db.cursor()
 
-    #average_skill = sum(player_skills)/ len(player_skills)
+    cursor.execute("""
+        INSERT INTO games (game_name, location, game_type, is_public, password)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (
+        data['game'],
+        data['location'],
+        data['game_type'],
+        data['public'] == 'True',
+        data.get('password', None)
+    ))
 
-    game_data = {
-        "location": location,
-        "difficulty": difficulty,
-        "time": time,
-    #"duration": duration,
-        "is_public": is_public,
-        "creator_id": creator_id,
-    }
+    db.commit()
+    cursor.close()
+    return jsonify({"message": "Game created successfully"})
 
-    result = games_collection.insert_one(game_data)
-
-    return jsonify({"message": "Game created successfully", "game_id": str(result.inserted_id)}), 201
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
-    
