@@ -20,3 +20,6 @@ Built With...
 - python
 - flask
 - mysql
+
+## View our DevPost
+https://devpost.com/software/pickup-u8pvdf
